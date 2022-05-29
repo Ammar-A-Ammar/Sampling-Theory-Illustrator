@@ -1,54 +1,58 @@
 import matplotlib
-matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from PyQt5 import QtCore, QtGui, QtWidgets
-#from PyQt5 import QtPrintSupport
 from pyqtgraph import PlotWidget
 import numpy as np
-#from PyQt5.QtWidgets import QFileDialog
-#from fpdf import FPDF
-#import os
+from scipy.fftpack import fft
+import math
+import pandas as pd
+import pyqtgraph as pg
+matplotlib.use('Qt5Agg')
+#from PySide import QtGui
+import pyautogui
+#app = QtGui.QApplication([])
+#screen_resolution = app.desktop().screenGeometry()
+#width, height = screen_resolution.width(), screen_resolution.height()
 
 
+
+new_sig = []
+t = np.arange(0, 1, 0.001)
 class MatplotlibCanvas(FigureCanvasQTAgg):
-	def __init__(self,parent=None, dpi = 120):
-		fig = Figure(dpi = dpi)
-		self.axes = fig.add_subplot(111)
-		super(MatplotlibCanvas,self).__init__(fig)
-		fig.tight_layout()
+    def __init__(self, parent=None, dpi=120):
+        fig = Figure(dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MatplotlibCanvas, self).__init__(fig)
+        fig.tight_layout()
 
 
 class sinusoidal():
-    def __init__(self,name='unknown',amplitude=0,phaseshift=0,frequency=1,type='none'):
-        self.name=name
-        self.phaseShift=phaseshift
-        self.amplitude=amplitude
-        self.frequency=frequency
-        self.type=type
+    def __init__(self, name='unknown', amplitude=0, phaseshift=0, frequency=1):
+        self.name = name
+        self.phaseShift = phaseshift
+        self.amplitude = amplitude
+        self.frequency = frequency
         self.time = np.arange(0.0, 1, 0.001)
-        if self.type == 'sin':
-            self.plot = self.amplitude * np.sin(
-                (2 * np.pi * self.frequency * self.time) + (self.phaseShift * np.pi / 180))
-        elif self.type == 'cos':
-            self.plot = self.amplitude * np.cos(
-                (2 * np.pi * self.frequency * self.time) + (self.phaseShift * np.pi / 180))
-        else:
-            self.plot=0
+        self.plot = self.amplitude * np.sin((2 * np.pi * self.frequency * self.time) + (self.phaseShift * np.pi / 180))
 
-    def plotting(self,widget):
-        widget.plot(self.time,self.plot)
+    def plotting(self, widget):
+        widget.plot(self.time, self.plot)
 
-    def addPlots(self,plot2):
-        self.plot=self.plot+plot2
+    def addPlots(self, plot2):
+        self.plot = self.plot + plot2
 
     def getPlot(self):
         return self.plot
+    def clearPlot(self):
+        self.plot=0
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1146, 877)
+        MainWindow.resize(int(pyautogui.size().width), int(pyautogui.size().height))
+       # MainWindow.resize(width, height)
         self.Main_centralwidget_for_layout = QtWidgets.QWidget(MainWindow)
         self.Main_centralwidget_for_layout.setObjectName("Main_centralwidget_for_layout")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.Main_centralwidget_for_layout)
@@ -75,13 +79,15 @@ class Ui_MainWindow(object):
         self.label_For_Main_graph.setObjectName("label_For_Main_graph")
         self.gridLayout_3.addWidget(self.label_For_Main_graph, 0, 0, 1, 1)
         self.signalWidget_mainGraph = PlotWidget(self.frame_mainGraph)
-        self.signalWidget_mainGraph.setStyleSheet("background-color: rgb(170, 170, 255);")
+        self.signalWidget_mainGraph.setStyleSheet("")
         self.signalWidget_mainGraph.setObjectName("signalWidget_mainGraph")
         self.gridLayout_3.addWidget(self.signalWidget_mainGraph, 1, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 313, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem = QtWidgets.QSpacerItem(10, 313, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_3.addItem(spacerItem, 1, 1, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(454, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(454, 5, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_3.addItem(spacerItem1, 2, 0, 1, 1)
+        spacerItem2 = QtWidgets.QSpacerItem(10, 33, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_3.addItem(spacerItem2, 0, 1, 1, 1)
         self.verticalLayout_for_mainGraph_and_illustrator_dynamic.addWidget(self.frame_mainGraph)
         self.frame_for_ilustrator = QtWidgets.QFrame(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
         self.frame_for_ilustrator.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -89,23 +95,31 @@ class Ui_MainWindow(object):
         self.frame_for_ilustrator.setObjectName("frame_for_ilustrator")
         self.gridLayout = QtWidgets.QGridLayout(self.frame_for_ilustrator)
         self.gridLayout.setObjectName("gridLayout")
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout.addItem(spacerItem2, 2, 0, 1, 1)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 5, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem3, 2, 0, 1, 1)
         self.label_for_spectroGram = QtWidgets.QLabel(self.frame_for_ilustrator)
         self.label_for_spectroGram.setAlignment(QtCore.Qt.AlignCenter)
         self.label_for_spectroGram.setObjectName("label_for_spectroGram")
         self.gridLayout.addWidget(self.label_for_spectroGram, 0, 0, 1, 1)
         self.signalWidget2_ilustrator = PlotWidget(self.frame_for_ilustrator)
-        self.signalWidget2_ilustrator.setStyleSheet("background-color: rgb(170, 170, 255);")
+        self.signalWidget2_ilustrator.setStyleSheet("")
         self.signalWidget2_ilustrator.setObjectName("signalWidget2_ilustrator")
         self.gridLayout.addWidget(self.signalWidget2_ilustrator, 1, 0, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 228, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout.addItem(spacerItem3, 1, 1, 1, 1)
+        spacerItem4 = QtWidgets.QSpacerItem(10, 63, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout.addItem(spacerItem4, 0, 1, 1, 1)
+        spacerItem5 = QtWidgets.QSpacerItem(10, 228, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout.addItem(spacerItem5, 1, 1, 1, 1)
         self.verticalLayout_for_mainGraph_and_illustrator_dynamic.addWidget(self.frame_for_ilustrator)
         self.verticalLayout_2.addLayout(self.verticalLayout_for_mainGraph_and_illustrator_dynamic)
+        self.checkBox_showhide = QtWidgets.QCheckBox(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
+        self.checkBox_showhide.setChecked(True)
+        self.checkBox_showhide.setTristate(False)
+        self.checkBox_showhide.setObjectName("checkBox_showhide")
+        self.verticalLayout_2.addWidget(self.checkBox_showhide)
         self.horizontalSlider_for_ilustrator = QtWidgets.QSlider(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
         self.horizontalSlider_for_ilustrator.setMaximum(10)
         self.horizontalSlider_for_ilustrator.setPageStep(1)
+        self.horizontalSlider_for_ilustrator.setProperty("value", 0)
         self.horizontalSlider_for_ilustrator.setSliderPosition(0)
         self.horizontalSlider_for_ilustrator.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_for_ilustrator.setTickPosition(QtWidgets.QSlider.TicksBelow)
@@ -120,6 +134,47 @@ class Ui_MainWindow(object):
         self.gridLayout_GeneratedSinusoidal = QtWidgets.QGridLayout(self.layoutWidget)
         self.gridLayout_GeneratedSinusoidal.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_GeneratedSinusoidal.setObjectName("gridLayout_GeneratedSinusoidal")
+        self.gridLayout_For_generating_sinusoidal = QtWidgets.QGridLayout()
+        self.gridLayout_For_generating_sinusoidal.setObjectName("gridLayout_For_generating_sinusoidal")
+        self.label_frequency = QtWidgets.QLabel(self.layoutWidget)
+        self.label_frequency.setObjectName("label_frequency")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_frequency, 0, 2, 1, 1)
+        self.lineEdit_plotName = QtWidgets.QLineEdit(self.layoutWidget)
+        self.lineEdit_plotName.setClearButtonEnabled(True)
+        self.lineEdit_plotName.setObjectName("lineEdit_plotName")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.lineEdit_plotName, 0, 1, 1, 1)
+        self.LineEdit_ferquency = QtWidgets.QLineEdit(self.layoutWidget)
+        self.LineEdit_ferquency.setClearButtonEnabled(True)
+        self.LineEdit_ferquency.setObjectName("LineEdit_ferquency")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.LineEdit_ferquency, 0, 3, 1, 1)
+        self.label_plotName = QtWidgets.QLabel(self.layoutWidget)
+        self.label_plotName.setObjectName("label_plotName")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_plotName, 0, 0, 1, 1)
+        self.label_magnitude = QtWidgets.QLabel(self.layoutWidget)
+        self.label_magnitude.setObjectName("label_magnitude")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_magnitude, 1, 0, 1, 1)
+        self.lineEdit_magnitude = QtWidgets.QLineEdit(self.layoutWidget)
+        self.lineEdit_magnitude.setClearButtonEnabled(True)
+        self.lineEdit_magnitude.setObjectName("lineEdit_magnitude")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.lineEdit_magnitude, 1, 1, 1, 1)
+        self.add = QtWidgets.QPushButton(self.layoutWidget)
+        self.add.setObjectName("add")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.add, 4, 0, 1, 5)
+        self.lineEdit_phaseShift = QtWidgets.QLineEdit(self.layoutWidget)
+        self.lineEdit_phaseShift.setAutoFillBackground(False)
+        self.lineEdit_phaseShift.setInputMask("")
+        self.lineEdit_phaseShift.setFrame(True)
+        self.lineEdit_phaseShift.setDragEnabled(True)
+        self.lineEdit_phaseShift.setClearButtonEnabled(True)
+        self.lineEdit_phaseShift.setObjectName("lineEdit_phaseShift")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.lineEdit_phaseShift, 1, 3, 1, 1)
+        self.label_phaseShift = QtWidgets.QLabel(self.layoutWidget)
+        self.label_phaseShift.setObjectName("label_phaseShift")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_phaseShift, 1, 2, 1, 1)
+        self.Plot_Button = QtWidgets.QPushButton(self.layoutWidget)
+        self.Plot_Button.setObjectName("Plot_Button")
+        self.gridLayout_For_generating_sinusoidal.addWidget(self.Plot_Button, 3, 0, 1, 5)
+        self.gridLayout_GeneratedSinusoidal.addLayout(self.gridLayout_For_generating_sinusoidal, 1, 0, 1, 1)
         self.frame_for_generated_sinusoidal = QtWidgets.QFrame(self.layoutWidget)
         self.frame_for_generated_sinusoidal.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_for_generated_sinusoidal.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -131,191 +186,19 @@ class Ui_MainWindow(object):
         self.label_For_generatedSinusoidal.setObjectName("label_For_generatedSinusoidal")
         self.gridLayout_4.addWidget(self.label_For_generatedSinusoidal, 0, 0, 1, 1)
         self.Widget_Plotter = PlotWidget(self.frame_for_generated_sinusoidal)
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ToolTipText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ToolTipText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText, brush)
-        self.Widget_Plotter.setPalette(palette)
-        self.Widget_Plotter.setStyleSheet("background-color: rgb(173, 198, 224);")
+        #self.Widget_Plotter.setEnabled(True)
+        
+        #self.Widget_Plotter.setPalette(palette)
+        self.Widget_Plotter.setStyleSheet("")
         self.Widget_Plotter.setObjectName("Widget_Plotter")
         self.gridLayout_4.addWidget(self.Widget_Plotter, 1, 0, 1, 1)
-        spacerItem4 = QtWidgets.QSpacerItem(405, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout_4.addItem(spacerItem4, 2, 0, 1, 1)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 198, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_4.addItem(spacerItem5, 1, 1, 1, 1)
+        spacerItem6 = QtWidgets.QSpacerItem(405, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_4.addItem(spacerItem6, 2, 0, 1, 1)
+        spacerItem7 = QtWidgets.QSpacerItem(10, 198, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_4.addItem(spacerItem7, 1, 1, 1, 1)
+        spacerItem8 = QtWidgets.QSpacerItem(10, 42, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_4.addItem(spacerItem8, 0, 1, 1, 1)
         self.gridLayout_GeneratedSinusoidal.addWidget(self.frame_for_generated_sinusoidal, 0, 0, 1, 1)
-        self.gridLayout_For_generating_sinusoidal = QtWidgets.QGridLayout()
-        self.gridLayout_For_generating_sinusoidal.setObjectName("gridLayout_For_generating_sinusoidal")
-        self.label_plotName = QtWidgets.QLabel(self.layoutWidget)
-        self.label_plotName.setObjectName("label_plotName")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_plotName, 0, 0, 1, 1)
-        self.lineEdit_plotName = QtWidgets.QLineEdit(self.layoutWidget)
-        self.lineEdit_plotName.setObjectName("lineEdit_plotName")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.lineEdit_plotName, 0, 1, 1, 1)
-        self.label_frequency = QtWidgets.QLabel(self.layoutWidget)
-        self.label_frequency.setObjectName("label_frequency")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_frequency, 0, 2, 1, 1)
-        self.LineEdit_ferquency = QtWidgets.QLineEdit(self.layoutWidget)
-        self.LineEdit_ferquency.setObjectName("LineEdit_ferquency")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.LineEdit_ferquency, 0, 3, 1, 1)
-        self.radioButton_sine = QtWidgets.QRadioButton(self.layoutWidget)
-        self.radioButton_sine.setObjectName("radioButton_sine")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.radioButton_sine, 0, 4, 1, 1)
-        self.label_magnitude = QtWidgets.QLabel(self.layoutWidget)
-        self.label_magnitude.setObjectName("label_magnitude")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_magnitude, 1, 0, 1, 1)
-        self.lineEdit_magnitude = QtWidgets.QLineEdit(self.layoutWidget)
-        self.lineEdit_magnitude.setObjectName("lineEdit_magnitude")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.lineEdit_magnitude, 1, 1, 1, 1)
-        self.label_phaseShift = QtWidgets.QLabel(self.layoutWidget)
-        self.label_phaseShift.setObjectName("label_phaseShift")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.label_phaseShift, 1, 2, 1, 1)
-        self.lineEdit_phaseShift = QtWidgets.QLineEdit(self.layoutWidget)
-        self.lineEdit_phaseShift.setAutoFillBackground(False)
-        self.lineEdit_phaseShift.setInputMask("")
-        self.lineEdit_phaseShift.setFrame(True)
-        self.lineEdit_phaseShift.setDragEnabled(True)
-        self.lineEdit_phaseShift.setObjectName("lineEdit_phaseShift")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.lineEdit_phaseShift, 1, 3, 1, 1)
-        self.radioButton_cosine = QtWidgets.QRadioButton(self.layoutWidget)
-        self.radioButton_cosine.setObjectName("radioButton_cosine")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.radioButton_cosine, 1, 4, 1, 1)
-        self.add = QtWidgets.QPushButton(self.layoutWidget)
-        self.add.setObjectName("add")
-        self.gridLayout_For_generating_sinusoidal.addWidget(self.add, 2, 0, 1, 5)
-        self.gridLayout_GeneratedSinusoidal.addLayout(self.gridLayout_For_generating_sinusoidal, 1, 0, 1, 1)
         self.layoutWidget1 = QtWidgets.QWidget(self.splitter_for_generated_and_summation)
         self.layoutWidget1.setObjectName("layoutWidget1")
         self.gridLayout_for_sinusoidalSummation = QtWidgets.QGridLayout(self.layoutWidget1)
@@ -323,32 +206,6 @@ class Ui_MainWindow(object):
         self.gridLayout_for_sinusoidalSummation.setObjectName("gridLayout_for_sinusoidalSummation")
         self.verticalLayout_mainGraphButtons = QtWidgets.QVBoxLayout()
         self.verticalLayout_mainGraphButtons.setObjectName("verticalLayout_mainGraphButtons")
-        self.Button_open = QtWidgets.QPushButton(self.layoutWidget1)
-        self.Button_open.setObjectName("Button_open")
-        self.verticalLayout_mainGraphButtons.addWidget(self.Button_open)
-        self.Generate_button = QtWidgets.QPushButton(self.layoutWidget1)
-        self.Generate_button.setObjectName("Generate_button")
-        self.verticalLayout_mainGraphButtons.addWidget(self.Generate_button)
-        self.Spare_button_2 = QtWidgets.QPushButton(self.layoutWidget1)
-        self.Spare_button_2.setObjectName("Spare_button_2")
-        self.verticalLayout_mainGraphButtons.addWidget(self.Spare_button_2)
-        self.Spare_button_3 = QtWidgets.QPushButton(self.layoutWidget1)
-        self.Spare_button_3.setObjectName("Spare_button_3")
-        self.verticalLayout_mainGraphButtons.addWidget(self.Spare_button_3)
-        self.Spare_button_4 = QtWidgets.QPushButton(self.layoutWidget1)
-        self.Spare_button_4.setObjectName("Spare_button_4")
-        self.verticalLayout_mainGraphButtons.addWidget(self.Spare_button_4)
-        self.Spare_button_5 = QtWidgets.QPushButton(self.layoutWidget1)
-        self.Spare_button_5.setObjectName("Spare_button_5")
-        self.verticalLayout_mainGraphButtons.addWidget(self.Spare_button_5)
-        self.Spare_button_6 = QtWidgets.QPushButton(self.layoutWidget1)
-        self.Spare_button_6.setObjectName("Spare_button_6")
-        self.verticalLayout_mainGraphButtons.addWidget(self.Spare_button_6)
-        self.checkBox_showhide = QtWidgets.QCheckBox(self.layoutWidget1)
-        self.checkBox_showhide.setChecked(True)
-        self.checkBox_showhide.setTristate(False)
-        self.checkBox_showhide.setObjectName("checkBox_showhide")
-        self.verticalLayout_mainGraphButtons.addWidget(self.checkBox_showhide)
         self.gridLayout_for_sinusoidalSummation.addLayout(self.verticalLayout_mainGraphButtons, 0, 0, 1, 1)
         self.widget_singleuse_as_backGround_for_summation = QtWidgets.QWidget(self.layoutWidget1)
         self.widget_singleuse_as_backGround_for_summation.setObjectName("widget_singleuse_as_backGround_for_summation")
@@ -359,150 +216,17 @@ class Ui_MainWindow(object):
         self.label_For_summation.setObjectName("label_For_summation")
         self.gridLayout_5.addWidget(self.label_For_summation, 0, 0, 1, 1)
         self.Widget_Adder = PlotWidget(self.widget_singleuse_as_backGround_for_summation)
-        palette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ToolTipText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ToolTipText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Button, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Light, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Midlight, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Dark, brush)
-        brush = QtGui.QBrush(QtGui.QColor(170, 170, 170))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Mid, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Text, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.BrightText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Base, brush)
-        brush = QtGui.QBrush(QtGui.QColor(173, 198, 224))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Shadow, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.AlternateBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(255, 255, 220))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipBase, brush)
-        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
-        brush.setStyle(QtCore.Qt.SolidPattern)
-        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText, brush)
-        self.Widget_Adder.setPalette(palette)
-        self.Widget_Adder.setStyleSheet("background-color: rgb(173, 198, 224);")
+
+        #self.Widget_Adder.setPalette(palette)
+        self.Widget_Adder.setStyleSheet("")
         self.Widget_Adder.setObjectName("Widget_Adder")
         self.gridLayout_5.addWidget(self.Widget_Adder, 1, 0, 1, 1)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 233, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_5.addItem(spacerItem6, 1, 1, 1, 1)
-        spacerItem7 = QtWidgets.QSpacerItem(346, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout_5.addItem(spacerItem7, 2, 0, 1, 1)
+        spacerItem9 = QtWidgets.QSpacerItem(10, 233, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_5.addItem(spacerItem9, 1, 1, 1, 1)
+        spacerItem10 = QtWidgets.QSpacerItem(346, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_5.addItem(spacerItem10, 2, 0, 1, 1)
+        spacerItem11 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout_5.addItem(spacerItem11, 0, 1, 1, 1)
         self.gridLayout_for_sinusoidalSummation.addWidget(self.widget_singleuse_as_backGround_for_summation, 0, 1, 1, 1)
         self.gridLayout_For_sunusoidalSummation = QtWidgets.QGridLayout()
         self.gridLayout_For_sunusoidalSummation.setObjectName("gridLayout_For_sunusoidalSummation")
@@ -521,61 +245,59 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1146, 21))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.actionOpen = QtWidgets.QAction(MainWindow)
+        self.actionOpen.setCheckable(False)
+        self.actionOpen.setObjectName("actionOpen")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
+        self.menuFile.addAction(self.actionOpen)
+        self.menuFile.addAction(self.actionSave)
+        self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        
-        #buttons
-        
+
+        # buttons
+
         self.checkBox_showhide.stateChanged.connect(lambda: self.IsChecked())
-        self.Button_confirmation.clicked.connect(lambda: self.signalConfirm())
 
-        self.Generate_button.clicked.connect(self.plotS)
-        self.radioButton_sine.clicked.connect(lambda:self.radiostate())
-        self.radioButton_cosine.clicked.connect(lambda:self.radiostate())
+        self.Plot_Button.clicked.connect(self.plotS)
         self.add.clicked.connect(self.adder_to_summation)
-        #self.Button_confirmation.clicked.connect(self.adder_to_mainGraph) 
         self.Button_delete.clicked.connect(self.deletePlot)
-        
-        self.s='none'
-        self.sinArr=[]
-        
-        
-        
-        
-         #Functions
-        
-        
-    def radiostate(self):
-            if self.radioButton_cosine.isChecked() ==True :
-                self.s='cos'
+        self.Button_confirmation.clicked.connect(self.toMainGraph)
+        self.horizontalSlider_for_ilustrator.valueChanged.connect(self.Sampling_change)
 
-            else:
-                self.s='sin'
-                
+        self.actionSave.triggered.connect(self.saveToCSV)
+        self.actionOpen.triggered.connect(self.Open_file)
+
+        self.s = 'none'
+        self.sinArr = []
+        self.Sinu = sinusoidal()
+
+    ###########################################################################################################################################
     def IsChecked(self):
-            if self.checkBox_showhide.isChecked()==False:
-                #self.Hide_channel(1)
-                #self.signalWidget2_ilustrator.hide() 
-                self.frame_for_ilustrator.hide()
-                
-            else:
-                #self.signalWidget2_ilustrator.show()  
-                self.frame_for_ilustrator.show()
-                
+        if self.checkBox_showhide.isChecked() == False:
+            # self.Hide_channel(1)
+            # self.signalWidget2_ilustrator.hide()
+            self.frame_for_ilustrator.hide()
 
+        else:
+            # self.signalWidget2_ilustrator.show()
+            self.frame_for_ilustrator.show()
 
     def plotS(self):
         self.Widget_Plotter.clear()
-        name=self.lineEdit_plotName.text()
-        freq=int(self.LineEdit_ferquency.text())
-        mag=int(self.lineEdit_magnitude.text())
-        pS=int(self.lineEdit_phaseShift.text())
-        Sinu=sinusoidal(name,mag,pS,freq,self.s)
+        name = self.lineEdit_plotName.text()
+        freq = int(self.LineEdit_ferquency.text())
+        mag = int(self.lineEdit_magnitude.text())
+        pS = int(self.lineEdit_phaseShift.text())
+        Sinu = sinusoidal(name, mag, pS, freq)
         Sinu.plotting(self.Widget_Plotter)
 
     def adder_to_summation(self):
@@ -583,62 +305,155 @@ class Ui_MainWindow(object):
         freq = int(self.LineEdit_ferquency.text())
         mag = int(self.lineEdit_magnitude.text())
         pS = int(self.lineEdit_phaseShift.text())
-        Sinu = sinusoidal(name, mag, pS, freq,self.s)
+        Sinu = sinusoidal(name, mag, pS, freq)
         self.sinArr.append(Sinu)
         self.Combobox_signal.addItem(Sinu.name)
         self.adderPLot()
 
-    
     def adderPLot(self):
         self.Widget_Adder.clear()
-        Sinu=sinusoidal()
         for i in range(len(self.sinArr)):
-            Sinu.addPlots(self.sinArr[i].getPlot())
+            self.Sinu.addPlots(self.sinArr[i].getPlot())
 
-        Sinu.plotting(self.Widget_Adder)
-         
-    def adder_to_mainGraph(self):
-        #name = self.lineEdit_plotName.text()
-        #freq = int(self.LineEdit_ferquency.text())
-        #mag = int(self.lineEdit_magnitude.text())
-        #pS = int(self.lineEdit_phaseShift.text())
-        #Sinu = sinusoidal(name, mag, pS, freq,self.s)
-        #self.sinArr.append(Sinu)
-        #self.Combobox_signal.addItem(Sinu.name)
-       # Sinu.plotting(self.signalWidget_mainGraph)
-        self.adderPLot()
+        self.Sinu.plotting(self.Widget_Adder)
 
     def deletePlot(self):
-        index=self.Combobox_signal.currentIndex()
+        index = self.Combobox_signal.currentIndex()
         self.sinArr.remove(self.sinArr[index])
         self.Combobox_signal.removeItem(index)
+        self.Sinu.clearPlot()
         self.adderPLot()
 
+    def toMainGraph(self):
+        self.signalWidget_mainGraph.clear()
+        # self.Sinu.plotting(self.signalWidget_mainGraph)
+
+        self.data_amplitude = self.Sinu.plot
+        self.data_time = self.Sinu.time
+        self.Get_max_freq(self.data_amplitude, self.data_time)
+        self.plot_mainGraph(self.data_amplitude, self.data_time, 0)
+
+    def Get_max_freq(self, Amplitude, time_Points):
+        data_amp = []
+        for i in Amplitude:
+            if len(data_amp) == len(t):
+                break
+            else:
+                data_amp.append(i)
+
+        n = np.size(time_Points)
+        frequency_array = np.arange(1, np.floor(n / 2), dtype='int')
+        data_freq = fft(data_amp)
+
+        freq_mag = (2 / n) * abs(data_freq[0:np.size(frequency_array)])
+
+        imp_freq = freq_mag > 0.2
+        clean_frequency_array = imp_freq * frequency_array
+        self.fmax = round(clean_frequency_array.max())
+        ##Getting maximum frequency
+
+    def Open_file(self):
+        self.signalWidget2_ilustrator.clear()
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None, 'Open csv', QtCore.QDir.rootPath(), 'csv(*.csv)')
+        data_set = pd.read_csv(fileName, header=None)
+        self.Save_signal(data_set[0], data_set[1])
+        ##Opening csv files
+
+    def Save_signal(self, time, Amplitude):
+        self.data_amplitude = Amplitude
+        self.data_time = time
+        self.Get_max_freq(self.data_amplitude, self.data_time)
+        self.plot_mainGraph(self.data_amplitude, self.data_time, 0)
+
+    def plot_mainGraph(self, amplitude, time, Fs):
+        self.pink_pen = pg.mkPen((255, 0, 255), width=1)
+        self.signalWidget_mainGraph.plotItem.vb.setLimits(xMin=min(time) - 0.01, xMax=max(time),
+                                                          yMin=min(amplitude) - 0.2,
+                                                          yMax=max(amplitude) + 0.2)
+        if Fs == 0:
+            self.signalWidget_mainGraph.clear()
+            self.signalWidget_mainGraph.plot(time, amplitude)
+        else:
+            sample_time = 1 / Fs
+            no_of_samples = math.ceil(max(time)) / sample_time  ##Getting number of samples as a float number
+            no_of_samples = math.ceil(no_of_samples)  ##Getting number of samples as an int number
+
+            index_append = len(time) / no_of_samples
+            index_append = math.floor(index_append)
+            self.Sample_amp = []
+            self.Sample_time = []
+            index = 0
+            for i in range(no_of_samples):
+                self.Sample_time.append(time[index])  ##adding the index of point time
+                self.Sample_amp.append(amplitude[index])  ##adding the index of point amplitude
+                index += index_append
+
+            self.recons_amp = self.sinc_interp(self.Sample_amp, self.Sample_time, time)  ##plotting the new points
+
+            self.signalWidget_mainGraph.clear()
+            self.signalWidget2_ilustrator.clear()
+            self.signalWidget_mainGraph.plot(time, amplitude)
+            self.signalWidget_mainGraph.plot(self.Sample_time, self.Sample_amp, symbol='o', pen=None)
+            self.signalWidget_mainGraph.plot(time, self.recons_amp, pen=self.pink_pen)
+            self.signalWidget2_ilustrator.plot(time, self.recons_amp, pen=self.pink_pen)
+            self.signalWidget2_ilustrator.plotItem.vb.setLimits(xMin=min(self.data_time) - 0.01,
+                                                                xMax=max(self.data_time),
+                                                                yMin=min(self.data_amplitude) - 0.2,
+                                                                yMax=max(self.data_amplitude) + 0.2)
+
+    def sinc_interp(self, sample_amplitude, sample_time, time):
+        if len(sample_amplitude) != len(sample_time):
+            raise ValueError('sample time and sample amplitude must be the same length')
+
+        sample_time = np.array(sample_time)
+        time = np.array(time)
+
+        period_time = sample_time[1] - sample_time[0]  ##Getting the period between two points
+
+        sincM = np.tile(time, (len(sample_time), 1)) - np.tile(sample_time[:, np.newaxis], (1, len(time)))
+        recovered_sig = np.dot(sample_amplitude, np.sinc(sincM / period_time))
+        return recovered_sig
+
+    def Sampling_change(self):
+        Slider_Value = float(self.horizontalSlider_for_ilustrator.value())
+        if (Slider_Value / 5) * self.fmax * max(self.data_time) < 3:  # 5 #3
+            value = 3 / (max(self.data_time * self.fmax))  # 3
+        else:
+            value = Slider_Value / 5  # 6
+        self.plot_mainGraph(self.data_amplitude, self.data_time, self.fmax * value)
+
+    ##Using slider to control Sampling Frequency
+
+    def saveToCSV(self):
+        list_dict = {'A': self.Sinu.time, 'B': self.Sinu.plot}
+        df = pd.DataFrame(list_dict)
+        df.to_csv('GeneratedSignal.csv', header=False, index=False)
+    ###########################################################################################################################################
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_For_Main_graph.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:20pt; font-weight:600;\">Main Graph</span></p></body></html>"))
-        self.label_for_spectroGram.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:20pt; font-weight:600;\"> illustrator</span></p></body></html>"))
-        self.label_For_generatedSinusoidal.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600;\">generated sinusoidal</span></p></body></html>"))
+        self.label_For_Main_graph.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">Main Graph</span></p></body></html>"))
+        self.label_for_spectroGram.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\"> Illustrator</span></p></body></html>"))
+        self.checkBox_showhide.setText(_translate("MainWindow", "Hide Illustrator"))
+        self.label_frequency.setText(_translate("MainWindow", "Frequency"))
+        self.lineEdit_plotName.setText(_translate("MainWindow", "Name"))
+        self.LineEdit_ferquency.setText(_translate("MainWindow", "20"))
         self.label_plotName.setText(_translate("MainWindow", "Plot Name"))
-        self.label_frequency.setText(_translate("MainWindow", "frequency"))
-        self.radioButton_sine.setText(_translate("MainWindow", "Sine"))
-        self.label_magnitude.setText(_translate("MainWindow", "Amplitude"))
-        self.label_phaseShift.setText(_translate("MainWindow", "phase shift"))
-        self.radioButton_cosine.setText(_translate("MainWindow", "cosine"))
-        self.add.setText(_translate("MainWindow", "add to summation"))
-        self.Button_open.setText(_translate("MainWindow", "Open"))
-        self.Generate_button.setText(_translate("MainWindow", "Generate"))
-        self.Spare_button_2.setText(_translate("MainWindow", "clear"))
-        self.Spare_button_3.setText(_translate("MainWindow", "spare 3"))
-        self.Spare_button_4.setText(_translate("MainWindow", "spare 4"))
-        self.Spare_button_5.setText(_translate("MainWindow", "spare 5"))
-        self.Spare_button_6.setText(_translate("MainWindow", "spare 6"))
-        self.checkBox_showhide.setText(_translate("MainWindow", "Show"))
-        self.label_For_summation.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600;\">sinusoidal summation </span></p></body></html>"))
-        self.Button_confirmation.setText(_translate("MainWindow", "Add signal to illustrator"))
+        self.label_magnitude.setText(_translate("MainWindow", "Magnitude"))
+        self.lineEdit_magnitude.setText(_translate("MainWindow", "1"))
+        self.add.setText(_translate("MainWindow", "Add"))
+        self.lineEdit_phaseShift.setText(_translate("MainWindow", "5"))
+        self.label_phaseShift.setText(_translate("MainWindow", "Phase shift"))
+        self.Plot_Button.setText(_translate("MainWindow", "Plot"))
+        self.label_For_generatedSinusoidal.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600;\">Generated Sinusoidal</span></p></body></html>"))
+        self.label_For_summation.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600;\">Sinusoidal Summation </span></p></body></html>"))
+        self.Button_confirmation.setText(_translate("MainWindow", "Add signal to Illustrator"))
         self.Button_delete.setText(_translate("MainWindow", "Delete"))
+        self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.actionOpen.setText(_translate("MainWindow", "Open"))
+        self.actionSave.setText(_translate("MainWindow", "Save"))
+from pyqtgraph import PlotWidget
 
 
 if __name__ == "__main__":
