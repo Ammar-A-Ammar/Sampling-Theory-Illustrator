@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>940</width>
-    <height>804</height>
+    <width>1608</width>
+    <height>1133</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,8 +27,21 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="2" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkBox_showhide">
+          <property name="text">
+           <string>Hide Illustrator</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <property name="tristate">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="3">
          <layout class="QVBoxLayout" name="verticalLayout_for_mainGraph_and_illustrator_dynamic">
           <item>
            <widget class="QFrame" name="frame_mainGraph">
@@ -138,6 +151,9 @@
              </item>
              <item row="1" column="0">
               <widget class="PlotWidget" name="signalWidget2_ilustrator" native="true">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
@@ -154,7 +170,7 @@
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>10</width>
-                 <height>63</height>
+                 <height>20</height>
                 </size>
                </property>
               </spacer>
@@ -180,32 +196,25 @@
           </item>
          </layout>
         </item>
-        <item>
-         <widget class="QCheckBox" name="checkBox_showhide">
-          <property name="text">
-           <string>Hide Illustrator</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
+        <item row="4" column="0">
          <widget class="QSlider" name="horizontalSlider_for_ilustrator">
+          <property name="minimum">
+           <number>1</number>
+          </property>
           <property name="maximum">
-           <number>10</number>
+           <number>9</number>
           </property>
           <property name="pageStep">
            <number>1</number>
           </property>
           <property name="value">
-           <number>0</number>
+           <number>1</number>
           </property>
           <property name="sliderPosition">
-           <number>0</number>
+           <number>1</number>
+          </property>
+          <property name="tracking">
+           <bool>true</bool>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -215,6 +224,22 @@
           </property>
           <property name="tickInterval">
            <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" colspan="2">
+         <widget class="QLabel" name="label_for_show_frequency">
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">
+color: rgb(255, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string>0</string>
           </property>
          </widget>
         </item>
@@ -776,7 +801,7 @@
               <property name="sizeHint" stdset="0">
                <size>
                 <width>405</width>
-                <height>20</height>
+                <height>10</height>
                </size>
               </property>
              </spacer>
@@ -1276,7 +1301,7 @@
               <property name="sizeHint" stdset="0">
                <size>
                 <width>346</width>
-                <height>20</height>
+                <height>10</height>
                </size>
               </property>
              </spacer>
@@ -1333,7 +1358,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>940</width>
+     <width>1608</width>
      <height>21</height>
     </rect>
    </property>
@@ -1343,6 +1368,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionClear"/>
+    <addaction name="actionSave"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -1358,6 +1384,11 @@
   <action name="actionClear">
    <property name="text">
     <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
    </property>
   </action>
  </widget>
