@@ -48,11 +48,11 @@ class sinusoidal():
         self.plot=0
 
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(int(pyautogui.size().width), int(pyautogui.size().height))
-       # MainWindow.resize(width, height)
+        MainWindow.resize(1608, 1133)
         self.Main_centralwidget_for_layout = QtWidgets.QWidget(MainWindow)
         self.Main_centralwidget_for_layout.setObjectName("Main_centralwidget_for_layout")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.Main_centralwidget_for_layout)
@@ -64,8 +64,13 @@ class Ui_MainWindow(object):
         self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic.setObjectName("frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.checkBox_showhide = QtWidgets.QCheckBox(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
+        self.checkBox_showhide.setChecked(True)
+        self.checkBox_showhide.setTristate(False)
+        self.checkBox_showhide.setObjectName("checkBox_showhide")
+        self.gridLayout_2.addWidget(self.checkBox_showhide, 2, 0, 1, 2)
         self.verticalLayout_for_mainGraph_and_illustrator_dynamic = QtWidgets.QVBoxLayout()
         self.verticalLayout_for_mainGraph_and_illustrator_dynamic.setObjectName("verticalLayout_for_mainGraph_and_illustrator_dynamic")
         self.frame_mainGraph = QtWidgets.QFrame(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
@@ -102,30 +107,36 @@ class Ui_MainWindow(object):
         self.label_for_spectroGram.setObjectName("label_for_spectroGram")
         self.gridLayout.addWidget(self.label_for_spectroGram, 0, 0, 1, 1)
         self.signalWidget2_ilustrator = PlotWidget(self.frame_for_ilustrator)
+        self.signalWidget2_ilustrator.setEnabled(True)
         self.signalWidget2_ilustrator.setStyleSheet("")
         self.signalWidget2_ilustrator.setObjectName("signalWidget2_ilustrator")
         self.gridLayout.addWidget(self.signalWidget2_ilustrator, 1, 0, 1, 1)
-        spacerItem4 = QtWidgets.QSpacerItem(10, 63, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        spacerItem4 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addItem(spacerItem4, 0, 1, 1, 1)
         spacerItem5 = QtWidgets.QSpacerItem(10, 228, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem5, 1, 1, 1, 1)
         self.verticalLayout_for_mainGraph_and_illustrator_dynamic.addWidget(self.frame_for_ilustrator)
-        self.verticalLayout_2.addLayout(self.verticalLayout_for_mainGraph_and_illustrator_dynamic)
-        self.checkBox_showhide = QtWidgets.QCheckBox(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
-        self.checkBox_showhide.setChecked(True)
-        self.checkBox_showhide.setTristate(False)
-        self.checkBox_showhide.setObjectName("checkBox_showhide")
-        self.verticalLayout_2.addWidget(self.checkBox_showhide)
+        self.gridLayout_2.addLayout(self.verticalLayout_for_mainGraph_and_illustrator_dynamic, 0, 0, 1, 3)
         self.horizontalSlider_for_ilustrator = QtWidgets.QSlider(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
-        self.horizontalSlider_for_ilustrator.setMaximum(10)
+        self.horizontalSlider_for_ilustrator.setMinimum(1)
+        self.horizontalSlider_for_ilustrator.setMaximum(9)
         self.horizontalSlider_for_ilustrator.setPageStep(1)
-        self.horizontalSlider_for_ilustrator.setProperty("value", 0)
-        self.horizontalSlider_for_ilustrator.setSliderPosition(0)
+        self.horizontalSlider_for_ilustrator.setProperty("value", 1)
+        self.horizontalSlider_for_ilustrator.setSliderPosition(1)
+        self.horizontalSlider_for_ilustrator.setTracking(True)
         self.horizontalSlider_for_ilustrator.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider_for_ilustrator.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.horizontalSlider_for_ilustrator.setTickInterval(1)
         self.horizontalSlider_for_ilustrator.setObjectName("horizontalSlider_for_ilustrator")
-        self.verticalLayout_2.addWidget(self.horizontalSlider_for_ilustrator)
+        self.gridLayout_2.addWidget(self.horizontalSlider_for_ilustrator, 4, 0, 1, 1)
+        self.label_for_show_frequency = QtWidgets.QLabel(self.frame_for_vertical_layout_for_mainGraph_and_illustrator_dynamic)
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        self.label_for_show_frequency.setFont(font)
+        self.label_for_show_frequency.setStyleSheet("\n"
+"color: rgb(255, 0, 0);")
+        self.label_for_show_frequency.setObjectName("label_for_show_frequency")
+        self.gridLayout_2.addWidget(self.label_for_show_frequency, 4, 1, 1, 2)
         self.splitter_for_generated_and_summation = QtWidgets.QSplitter(self.splitter_horizontally_From_mid)
         self.splitter_for_generated_and_summation.setOrientation(QtCore.Qt.Vertical)
         self.splitter_for_generated_and_summation.setObjectName("splitter_for_generated_and_summation")
@@ -186,13 +197,13 @@ class Ui_MainWindow(object):
         self.label_For_generatedSinusoidal.setObjectName("label_For_generatedSinusoidal")
         self.gridLayout_4.addWidget(self.label_For_generatedSinusoidal, 0, 0, 1, 1)
         self.Widget_Plotter = PlotWidget(self.frame_for_generated_sinusoidal)
-        #self.Widget_Plotter.setEnabled(True)
-        
-        #self.Widget_Plotter.setPalette(palette)
+        self.Widget_Plotter.setEnabled(True)
+        palette = QtGui.QPalette()
+        self.Widget_Plotter.setPalette(palette)
         self.Widget_Plotter.setStyleSheet("")
         self.Widget_Plotter.setObjectName("Widget_Plotter")
         self.gridLayout_4.addWidget(self.Widget_Plotter, 1, 0, 1, 1)
-        spacerItem6 = QtWidgets.QSpacerItem(405, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem6 = QtWidgets.QSpacerItem(405, 10, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_4.addItem(spacerItem6, 2, 0, 1, 1)
         spacerItem7 = QtWidgets.QSpacerItem(10, 198, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_4.addItem(spacerItem7, 1, 1, 1, 1)
@@ -216,14 +227,14 @@ class Ui_MainWindow(object):
         self.label_For_summation.setObjectName("label_For_summation")
         self.gridLayout_5.addWidget(self.label_For_summation, 0, 0, 1, 1)
         self.Widget_Adder = PlotWidget(self.widget_singleuse_as_backGround_for_summation)
-
-        #self.Widget_Adder.setPalette(palette)
+        palette = QtGui.QPalette()
+        self.Widget_Adder.setPalette(palette)
         self.Widget_Adder.setStyleSheet("")
         self.Widget_Adder.setObjectName("Widget_Adder")
         self.gridLayout_5.addWidget(self.Widget_Adder, 1, 0, 1, 1)
         spacerItem9 = QtWidgets.QSpacerItem(10, 233, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_5.addItem(spacerItem9, 1, 1, 1, 1)
-        spacerItem10 = QtWidgets.QSpacerItem(346, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem10 = QtWidgets.QSpacerItem(346, 10, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_5.addItem(spacerItem10, 2, 0, 1, 1)
         spacerItem11 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout_5.addItem(spacerItem11, 0, 1, 1, 1)
@@ -243,7 +254,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.splitter_horizontally_From_mid)
         MainWindow.setCentralWidget(self.Main_centralwidget_for_layout)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1146, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1608, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -254,15 +265,18 @@ class Ui_MainWindow(object):
         self.actionOpen = QtWidgets.QAction(MainWindow)
         self.actionOpen.setCheckable(False)
         self.actionOpen.setObjectName("actionOpen")
+        self.actionClear = QtWidgets.QAction(MainWindow)
+        self.actionClear.setObjectName("actionClear")
         self.actionSave = QtWidgets.QAction(MainWindow)
         self.actionSave.setObjectName("actionSave")
         self.menuFile.addAction(self.actionOpen)
+        self.menuFile.addAction(self.actionClear)
         self.menuFile.addAction(self.actionSave)
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+        
         # buttons
 
         self.checkBox_showhide.stateChanged.connect(lambda: self.IsChecked())
@@ -275,6 +289,7 @@ class Ui_MainWindow(object):
 
         self.actionSave.triggered.connect(self.saveToCSV)
         self.actionOpen.triggered.connect(self.Open_file)
+        self.actionClear.triggered.connect(self.clearAll)
 
         self.s = 'none'
         self.sinArr = []
@@ -415,14 +430,23 @@ class Ui_MainWindow(object):
         return recovered_sig
 
     def Sampling_change(self):
+        
         Slider_Value = float(self.horizontalSlider_for_ilustrator.value())
-        if (Slider_Value / 5) * self.fmax * max(self.data_time) < 3:  # 5 #3
+        self.label_for_show_frequency.setText(str(Slider_Value))
+        #self.label_For_Main_graph.setText(str(self.horizontalSlider_for_ilustrator.value()))
+        if (Slider_Value / 3) * self.fmax * max(self.data_time) < 3:  # 5 #3
             value = 3 / (max(self.data_time * self.fmax))  # 3
         else:
-            value = Slider_Value / 5  # 6
+            value = Slider_Value / 6  # 6
         self.plot_mainGraph(self.data_amplitude, self.data_time, self.fmax * value)
 
     ##Using slider to control Sampling Frequency
+
+    def clearAll(self):
+        self.deletePlot(self)
+        
+        
+        
 
     def saveToCSV(self):
         list_dict = {'A': self.Sinu.time, 'B': self.Sinu.plot}
@@ -433,9 +457,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.checkBox_showhide.setText(_translate("MainWindow", "Hide Illustrator"))
         self.label_For_Main_graph.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">Main Graph</span></p></body></html>"))
         self.label_for_spectroGram.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\"> Illustrator</span></p></body></html>"))
-        self.checkBox_showhide.setText(_translate("MainWindow", "Hide Illustrator"))
+        self.label_for_show_frequency.setText(_translate("MainWindow", "0"))
         self.label_frequency.setText(_translate("MainWindow", "Frequency"))
         self.lineEdit_plotName.setText(_translate("MainWindow", "Name"))
         self.LineEdit_ferquency.setText(_translate("MainWindow", "20"))
@@ -452,6 +477,7 @@ class Ui_MainWindow(object):
         self.Button_delete.setText(_translate("MainWindow", "Delete"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
+        self.actionClear.setText(_translate("MainWindow", "Clear"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
 from pyqtgraph import PlotWidget
 
