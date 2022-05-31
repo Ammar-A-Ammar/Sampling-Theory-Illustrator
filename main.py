@@ -52,7 +52,8 @@ class sinusoidal():
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1608, 1133)
+        #MainWindow.resize(1608, 1133)
+        MainWindow.resize(int(pyautogui.size().width*2/3), int(pyautogui.size().height)*2/3)
         self.Main_centralwidget_for_layout = QtWidgets.QWidget(MainWindow)
         self.Main_centralwidget_for_layout.setObjectName("Main_centralwidget_for_layout")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.Main_centralwidget_for_layout)
@@ -277,8 +278,8 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         
-        # buttons
-
+        ### buttons
+###########################################################################################################################################
         self.checkBox_showhide.stateChanged.connect(lambda: self.IsChecked())
 
         self.Plot_Button.clicked.connect(self.plotS)
@@ -295,6 +296,8 @@ class Ui_MainWindow(object):
         self.sinArr = []
         self.Sinu = sinusoidal()
 
+
+     ### Functions
     ###########################################################################################################################################
     def IsChecked(self):
         if self.checkBox_showhide.isChecked() == False:
@@ -369,7 +372,7 @@ class Ui_MainWindow(object):
 
     def Open_file(self):
         self.signalWidget2_ilustrator.clear()
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None, 'Open csv', QtCore.QDir.rootPath(), 'csv(*.csv)')
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(filter= "csv(*.csv)")
         data_set = pd.read_csv(fileName, header=None)
         self.Save_signal(data_set[0], data_set[1])
         ##Opening csv files
@@ -380,13 +383,17 @@ class Ui_MainWindow(object):
         self.Get_max_freq(self.data_amplitude, self.data_time)
         self.plot_mainGraph(self.data_amplitude, self.data_time, 0)
 
+
+
     def plot_mainGraph(self, amplitude, time, Fs):
         self.pink_pen = pg.mkPen((255, 0, 255), width=1)
+        self.signalWidget_mainGraph.clear()
+        self.signalWidget2_ilustrator.clear()
+
         self.signalWidget_mainGraph.plotItem.vb.setLimits(xMin=min(time) - 0.01, xMax=max(time),
                                                           yMin=min(amplitude) - 0.2,
                                                           yMax=max(amplitude) + 0.2)
         if Fs == 0:
-            self.signalWidget_mainGraph.clear()
             self.signalWidget_mainGraph.plot(time, amplitude)
         else:
             sample_time = 1 / Fs
@@ -405,8 +412,6 @@ class Ui_MainWindow(object):
 
             self.recons_amp = self.sinc_interp(self.Sample_amp, self.Sample_time, time)  ##plotting the new points
 
-            self.signalWidget_mainGraph.clear()
-            self.signalWidget2_ilustrator.clear()
             self.signalWidget_mainGraph.plot(time, amplitude)
             self.signalWidget_mainGraph.plot(self.Sample_time, self.Sample_amp, symbol='o', pen=None)
             self.signalWidget_mainGraph.plot(time, self.recons_amp, pen=self.pink_pen)
@@ -415,6 +420,7 @@ class Ui_MainWindow(object):
                                                                 xMax=max(self.data_time),
                                                                 yMin=min(self.data_amplitude) - 0.2,
                                                                 yMax=max(self.data_amplitude) + 0.2)
+
 
     def sinc_interp(self, sample_amplitude, sample_time, time):
         if len(sample_amplitude) != len(sample_time):
@@ -430,23 +436,46 @@ class Ui_MainWindow(object):
         return recovered_sig
 
     def Sampling_change(self):
-        
-        Slider_Value = float(self.horizontalSlider_for_ilustrator.value())
+        # print('changing')
+        # print(self.horizontalSlider_for_ilustrator.value())
+        Slider_Value = int(self.horizontalSlider_for_ilustrator.value())
         self.label_for_show_frequency.setText(str(Slider_Value))
         #self.label_For_Main_graph.setText(str(self.horizontalSlider_for_ilustrator.value()))
         if (Slider_Value / 3) * self.fmax * max(self.data_time) < 3:  # 5 #3
-            value = 3 / (max(self.data_time * self.fmax))  # 3
+            self.value = 3 / (max(self.data_time * self.fmax))  # 3
+
         else:
-            value = Slider_Value / 6  # 6
-        self.plot_mainGraph(self.data_amplitude, self.data_time, self.fmax * value)
+            self.value = Slider_Value / 2.75  # 6
+        self.plot_mainGraph(self.data_amplitude, self.data_time, self.fmax * self.value)
+        #self.SignalReconstruction(self.data_amplitude, self.data_time, self.fmax * value)
 
     ##Using slider to control Sampling Frequency
 
+    # def SignalReconstruction(self, amplitude, time, fs):
+    #     sample_time = 1 / fs
+    #     no_of_samples = math.ceil(max(time)) / sample_time
+    #     no_of_samples = math.ceil(no_of_samples)
+    #     index_append = len(time) / no_of_samples
+    #     index_append = math.floor(index_append)
+    #     self.Sample_amp = []
+    #     self.Sample_time = []
+    #     index = 0
+    #     for i in range(no_of_samples):
+    #         self.Sample_time.append(time[index])
+    #         self.Sample_amp.append(amplitude[index])
+    #         index += index_append
+    #     self.recons_amp = self.sinc_interp(self.Sample_amp, self.Sample_time, time)
+    #     self.signalWidget_mainGraph.clear()
+    #     self.signalWidget2_ilustrator.clear()
+    #     self.plot_mainGraph(self.signalWidget_mainGraph, amplitude, time)
+    #     self.signalWidget_mainGraph.plot(self.Sample_time, self.Sample_amp, symbol='o', pen=None)
+    #     self.signalWidget_mainGraph.plot(time, self.recons_amp, pen=self.pink_pen)
+    #     self.plot_mainGraph(self.signalWidget2_ilustrator, self.recons_amp, time, self.pink_pen)
+
+
+
     def clearAll(self):
         self.deletePlot(self)
-        
-        
-        
 
     def saveToCSV(self):
         list_dict = {'A': self.Sinu.time, 'B': self.Sinu.plot}
